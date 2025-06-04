@@ -33,8 +33,31 @@ class Machine {
         });
         return res;
     }
+    async getAllActivities() {
+        const res = await AppServer.rawRequest('activities/get', {
+            "ActivityGroupId": "2",
+            "ReferenceId": this.RentableInventoryItemId
+        });
+        for (let i = 0; i < res.records.length; i++) {
+            const r = res.records[i];
+            r.AppServerTitle = `🏴 ${r.ActivityTypeName}, ${r.IsComplete?"Complete, ":""}${this.getFollowUpDate(r.FollowUpDate)}, Modified: ${(new Date(r.ModifiedDate)).toLocaleDateString('en-US')}, Owner: ${r.OwnedByName}`;
+        }
+        return res.records;
+    }
+    getFollowUpDate(d) {
+        const today = new Date();
+        const d2 = new Date(d);
+        const diffTime = Math.abs(d2 - today);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        if (d2 < today) {
+            return "Expired";
+        } else if (diffDays === 0) {
+            return "Today";
+        } else {
+            return `${diffDays} Days`;
+        }
+    }
 }
-
 class AppServer {
 
     static async searchInventory(SN) {
