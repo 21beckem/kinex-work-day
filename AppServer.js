@@ -35,26 +35,44 @@ class Machine {
     }
     async getAllActivities() {
         const res = await AppServer.rawRequest('activities/get', {
-            "ActivityGroupId": "2",
-            "ReferenceId": this.RentableInventoryItemId
+            ActivityGroupId : "2",
+            ReferenceId : this.RentableInventoryItemId
         });
         for (let i = 0; i < res.records.length; i++) {
-            const r = res.records[i];
-            r.AppServerTitle = `🏴 ${r.ActivityTypeName}, ${r.IsComplete?"Complete, ":""}${this.getFollowUpDate(r.FollowUpDate)}, Modified: ${(new Date(r.ModifiedDate)).toLocaleDateString('en-US')}, Owner: ${r.OwnedByName}`;
+            res.records[i] = new Activity( res.records[i] );
         }
         return res.records;
     }
-    getFollowUpDate(d) {
+}
+class Activity {
+    constructor(json) {
+        for (const key in json) {
+            if (json.hasOwnProperty(key)) {
+                this[key] = json[key];
+            }
+        }
+        this.AppServerTitle = `🏴 ${this.ActivityTypeName}, ${this.IsComplete?"Complete, ":""}${this.getFollowUpDate()}, Modified: ${(new Date(this.ModifiedDate)).toLocaleDateString('en-US')}, Owner: ${this.OwnedByName}`;
+    }
+    markAsComplete(yesOrNo=true) {
+        return AppServer.rawRequest('activities/update-activity-is-complete', {
+            "ActivityId": this.ActivityId,
+            IsComplete: (yesOrNo?"1":"0")
+        });
+    }
+    getFollowUpDate() {
+        if (!this.FollowUpDate || this.FollowUpDate.trim() === "") {
+            return "No Follow Up";
+        }
         const today = new Date();
-        const d2 = new Date(d);
+        const d2 = new Date( this.FollowUpDate );
         const diffTime = Math.abs(d2 - today);
         const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
         if (d2 < today) {
             return "Expired";
         } else if (diffDays === 0) {
-            return "Today";
+            return "Follow Up: Today";
         } else {
-            return `${diffDays} Days`;
+            return `Follow Up: ${diffDays}d`;
         }
     }
 }
