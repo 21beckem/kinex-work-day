@@ -21,3 +21,9 @@ async function RepairMachine() {
 
     alert("Success!");
 }
+
+let myButton = document.createElement("button");
+myButton.innerHTML = "Repair Machine";
+myButton.style.cssText = "position: absolute; bottom: 40px; right: 10px; z-index: 9999; padding: 15px;";
+myButton.onclick = RepairMachine;
+document.body.appendChild(myButton);
