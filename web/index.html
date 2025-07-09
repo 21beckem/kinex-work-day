@@ -8,8 +8,17 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <sidebar-container>
+        <deselect></deselect>
+        <sidebar>
+            <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
+            <button class="setRole"><h2>Cleaner</h2></button>
+            <button class="setRole"><h2>Repairer</h2></button>
+            <button class="toggleDateCol"><h2>Toggle Date Column</h2></button>
+        </sidebar>
+    </sidebar-container>
     <navbar>
-        <button class="invisible" onclick="alert('opening sidebar')">
+        <button>
             <hamburger style="margin-right: 15px;"></hamburger> <span id="role-title"></span>
         </button>
         <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
@@ -37,10 +46,28 @@
 
 // settings
 
-const showDateCol = true;
-const Kinex_Role = 'Cleaner';
+const showDateCol = localStorage.getItem('KinexWorkDay_showDateCol') == 'true';
+const Kinex_Role = localStorage.getItem('KinexWorkDay_role') || 'Cleaner';
 
 // end settings
+
+
+// sidebar functions
+document.querySelector('deselect').onclick = () => {
+    document.querySelector('sidebar-container').classList.remove('active');
+}
+document.querySelector('button:has(hamburger)').onclick = () => {
+    document.querySelector('sidebar-container').classList.add('active');
+}
+document.querySelectorAll('sidebar button.setRole').forEach(x => x.onclick = () => {
+    document.querySelector('sidebar-container').classList.remove('active');
+    localStorage.setItem('KinexWorkDay_role', x.innerText);
+    location.reload();
+});
+document.querySelector('sidebar button.toggleDateCol').onclick = () => {
+    localStorage.setItem('KinexWorkDay_showDateCol', !showDateCol);
+    location.reload();
+}
 
 
 // functions to compare dates

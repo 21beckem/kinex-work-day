@@ -4,7 +4,7 @@
     --color-muted-darker: #cfcfcf;
     --color-bright: #ffffff;
     --color-dark: #3B3B3B;
-    --page-margin-width: calc(100vw - 5rem);
+    --page-margin-width: calc(100% - 5rem);
     --shadow-float: 0 1px 10px -4px rgba(0,0,0,.4);
 }
 
@@ -27,10 +27,65 @@ body {
 .full-width {
     width: var(--page-margin-width);
 }
-button.invisible {
+button:not(.visible) {
+    outline: none;
     border: none;
     background-color: transparent;
     cursor: pointer;
+}
+
+sidebar-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 9999;
+    pointer-events: none;
+    --transition: .2s ease;
+}
+sidebar-container.active * {
+    pointer-events: auto;
+}
+deselect {
+    position: absolute;
+    display: block;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity var(--transition);
+    background-color: rgba(0,0,0,.4);
+    -webkit-tap-highlight-color: transparent;
+}
+sidebar-container.active > deselect {
+    opacity: 1;
+}
+sidebar-container sidebar {
+    position: relative;
+    top: 0;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 40px 20px;
+    width: 250px;
+    height: 100vh;
+    background-color: var(--color-bright);
+    box-shadow: var(--shadow-float);
+    transform: translateX(calc(-100% - 20px));
+    transition: transform var(--transition);
+}
+sidebar-container.active > sidebar {
+    opacity: 1;
+    transform: translateX(0);
+}
+sidebar-container sidebar img {
+    width: var(--page-margin-width);
+    margin: 0 auto;
+    margin-bottom: 40px;
 }
 
 navbar {
