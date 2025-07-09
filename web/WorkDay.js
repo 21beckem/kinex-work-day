@@ -11,7 +11,7 @@ class WorkDay {
     }
     static async getAllCleaner() {
         let res = await WorkDay.rawRequest('all-cleaned');
-        if (typeof res !== 'object') res = [];
+        if (typeof res !== 'object' || !res) res = [];
         return res;
     }
     static async addCleaner(Sn, Status, date=null) {
