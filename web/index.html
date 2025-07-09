@@ -9,18 +9,102 @@
 </head>
 <body>
     <navbar>
-        <div onclick="alert('opening sidebar')">
-            <hamburger style="margin-right: 20px;"></hamburger> <span>Work Day</span>
-        </div>
+        <button class="invisible" onclick="alert('opening sidebar')">
+            <hamburger style="margin-right: 15px;"></hamburger> <span id="role-title"></span>
+        </button>
         <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
     </navbar>
 
-    <spacer style="height: 140px;"></spacer>
+    <spacer style="height: 150px;"></spacer>
 
     <div class="full-width" style="display: flex; justify-content: flex-end;">
-        <capsule class="active">Today</capsule>
-        <capsule>This Week</capsule>
-        <capsule>Select Date Range</capsule>
+        <capsule one class="active" onclick="populateTable(1)">Today</capsule>
+        <capsule seven onclick="populateTable(7)">This Week</capsule>
+        <capsule range onclick="alert('coming soon')">Custom Date Range</capsule>
     </div>
+
+    <spacer style="height: 25px;"></spacer>
+
+    <table>
+        <tr id="tableHeader"><th>Serial #</th><th>Status</th></tr>
+        <tbody class="tableBody"></tbody>
+    </table>
+
+    <bottom-button>+</bottom-button>
+
+    <script src="WorkDay.js"></script>
+    <script>
+
+// settings
+
+const showDateCol = true;
+const Kinex_Role = 'Cleaner';
+
+// end settings
+
+
+// functions to compare dates
+Date.prototype.isInDateRange = function(rangeStart, rangeEnd) {
+    return this >= rangeStart && this < rangeEnd;
+}
+Date.prototype.withinPastDays = function(daysNum) {
+    const rangeStart = new Date();
+    rangeStart.setHours(0, 0, 0, 0);
+    rangeStart.setDate(rangeStart.getDate() - (daysNum-1));
+    return this.isInDateRange(rangeStart, new Date());
+}
+
+// function to set active capsule
+function setSelectedCapsule(capsule) {
+    document.querySelectorAll('capsule').forEach(x => x.classList.remove('active'));
+    document.querySelector(`capsule[${capsule}]`).classList.add('active');
+}
+
+// function to populate table and really the whole page
+async function populateTable(dateRange=1) {
+    // set navbar role title
+    document.getElementById('role-title').innerHTML = Kinex_Role;
+
+    // set active capsule
+    let checkFunction = null;
+    if (typeof dateRange == 'number') {
+        if (dateRange == 1) setSelectedCapsule('one');
+        else if (dateRange == 7) setSelectedCapsule('seven');
+        else setSelectedCapsule('range');
+        checkFunction = (x) => x.withinPastDays(dateRange);
+    } else {
+        setSelectedCapsule('range');
+        checkFunction = (x) => x.isInDateRange(new Date(dateRange[0]), new Date(dateRange[1]));
+    }
+
+    // set table headers
+    if (showDateCol) {
+        document.querySelector('table #tableHeader').innerHTML = `<th>Date</th><th>Serial #</th><th>Status</th>`;
+    } else {
+        document.querySelector('table #tableHeader').innerHTML = `<th>Serial #</th><th>Status</th>`;
+    }
+
+    // get data
+    window.listOfMachines = await WorkDay['getAll'+Kinex_Role]();
+    // filter and sort it
+    window.listOfMachines = window.listOfMachines.filter(row => checkFunction(new Date(row[0]))).sort((a, b) => a[0] - b[0]);
+    
+    // clear table
+    document.querySelector('table .tableBody').innerHTML = '';
+
+    // populate table
+    window.listOfMachines.map((row, i) => {
+        let tr = document.createElement('tr');
+        tr.innerHTML = `<td>${row[1]}</td><td>${ WorkDay.statusToIcon(row[2]) }</td>`;
+        if (showDateCol) {
+            tr.innerHTML = `<td>${ new Date(row[0]).toLocaleString() }</td>` + tr.innerHTML;
+        }
+        document.querySelector('table .tableBody').appendChild(tr);
+    });
+}
+
+populateTable(1);
+
+    </script>
 </body>
 </html>

@@ -1,9 +1,11 @@
 :root {
     --color-accent: #F75703;
     --color-muted: #eeeeee;
+    --color-muted-darker: #cfcfcf;
     --color-bright: #ffffff;
     --color-dark: #3B3B3B;
     --page-margin-width: calc(100vw - 5rem);
+    --shadow-float: 0 1px 10px -4px rgba(0,0,0,.4);
 }
 
 html, body {
@@ -15,6 +17,7 @@ html, body {
     background-color: var(--color-bright);
     color: var(--color-dark);
     font-family: 'Poppins', sans-serif;
+    -webkit-tap-highlight-color: color-mix(in srgb, var(--color-accent) 20%, transparent);
 }
 body {
     display: flex;
@@ -23,6 +26,11 @@ body {
 }
 .full-width {
     width: var(--page-margin-width);
+}
+button.invisible {
+    border: none;
+    background-color: transparent;
+    cursor: pointer;
 }
 
 navbar {
@@ -93,4 +101,42 @@ capsule {
 capsule.active {
     background-color: var(--color-accent);
     color: var(--color-bright);
+}
+table {
+    width: var(--page-margin-width);
+    border-collapse: collapse;
+    border: 1px solid var(--color-muted);
+}
+table th, table td {
+    width: 50%;
+    border: 1px solid var(--color-muted);
+    padding: 5px 10px;
+    text-align: center;
+}
+table tbody:empty::after {
+    content: "Let's get to work!";
+    display: block;
+    width: calc(200% - 40px);
+    color: var(--color-muted-darker);
+    font-size: 20px;
+    text-align: center;
+    padding: 20px;
+    font-weight: bold;
+}
+
+bottom-button {
+    position: absolute;
+    bottom: 40px;
+    right: 40px;
+    width: 90px;
+    aspect-ratio: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 30px;
+    cursor: pointer;
+    font-size: 60px;
+    background-color: var(--color-bright);
+    color: var(--color-accent);
+    box-shadow: var(--shadow-float);
 }
