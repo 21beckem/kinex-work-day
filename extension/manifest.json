@@ -1,0 +1,24 @@
+{
+	"manifest_version": 3,
+	"name": "Kinex Work Day",
+	"author": "Michael Becker",
+	"description": "Create AI tickets straight from Genesys!",
+	"version": "1.0",
+	"icons": {
+	  	"225": "images/logo-circle.png"
+	},
+	"web_accessible_resources": [
+		{
+			"resources": ["injected/*"],
+			"matches": ["<all_urls>"]
+		}
+	],
+	"content_scripts": [
+		{
+			"matches": ["http://*/*", "https://*/*"],
+			"js": ["inject_to_the_right_pages.js"],
+			"all_frames": true,
+			"run_at": "document_start"
+		}
+	]
+}
