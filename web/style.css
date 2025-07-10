@@ -33,6 +33,14 @@ button:not(.visible) {
     background-color: transparent;
     cursor: pointer;
 }
+button.visible {
+    margin: 5px;
+    padding: 10px 20px;
+    background-color: var(--color-accent);
+    color: var(--color-bright);
+    border: none;
+    border-radius: 30px;
+}
 
 sidebar-container {
     position: fixed;

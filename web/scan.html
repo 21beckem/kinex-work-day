@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scan Machine</title>
+    <style>
+html, body {
+    justify-content: center;
+}
+#camera video {
+    width:100%;
+    max-width: 640px;
+    background-color: black;
+}
+#camera canvas{
+    position: absolute;
+    pointer-events: none;
+    transform: scale(.1);
+    top: 0;
+    left: 0;
+}
+prompt {
+    position: absolute;
+    top: 50px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background-color: var(--color-bright);
+    padding: 1em;
+    border-radius: 1em;
+    box-shadow: var(--shadow-float);
+}
+input {
+    background-color: var(--color-muted);
+    border: none;
+    border-radius: 1em;
+    padding: 0.5em;
+    margin: 0.5em;
+    text-transform: uppercase;
+    text-align: center;
+}
+    </style>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="camera"></div>
+
+    <prompt>
+        <h3 style="margin: 10px;">Manual Entry</h3>
+        <input type="text" id="manualEntry">
+        <button class="visible" onclick="location.href = 'machine-details.html?code=' + encodeURIComponent(document.querySelector('prompt input').value);">Submit</button>
+    </prompt>
+
+    <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
+    <script>
+const inputManualEntry = document.querySelector('input#manualEntry');
+const quaggaConf = {
+    inputStream: {
+        target: document.querySelector("#camera"),
+        type: "LiveStream",
+        constraints: {
+            width: { min: 640 },
+            height: { min: 480 },
+            facingMode: "environment",
+            aspectRatio: { min: 1, max: 2 }
+        }
+    },
+    decoder: {
+        readers: ['code_128_reader']
+    },
+}
+
+Quagga.init(quaggaConf, function (err) {
+    if (err) { return console.log(err); }
+    Quagga.start();
+});
+
+Quagga.onDetected(function (result) {
+    inputManualEntry.value = result.codeResult.code;
+    // location.href = 'machine-details.html?code=' + encodeURIComponent(result.codeResult.code);
+});
+</script>
+</body>
+</html>
