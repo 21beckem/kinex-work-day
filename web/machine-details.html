@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Machine Details</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&amp;display=swap" rel="stylesheet" style="cursor: pointer;">
+    <link rel="stylesheet" href="style.css">
+    <style>
+table {
+    position: relative;
+    border-radius: 30px;
+    box-shadow: var(--shadow-float);
+    border: none;
+    overflow: hidden;
+    z-index: 2;
+}
+table th {
+    text-align: center;
+    vertical-align: middle;
+    background-color: inherit;
+    background-color: var(--color-bright);
+}
+table td {
+    text-align: center;
+    vertical-align: middle;
+    background-color: rgb(249 249 249);
+    padding: 25px 0;
+    font-size: 20px;
+}
+div:has(> .behind-btn) {
+    position: relative;
+}
+.behind-btn {
+    position: absolute;
+    display: block;
+    bottom: calc(-1.7rem - 10px);
+    border-radius: 10px;
+    right: 1px;
+    padding: 5px 15px;
+    padding-top: 5rem;
+    background-color: var(--color-bright);
+    border: 1px solid var(--color-accent);
+    color: var(--color-accent);
+    cursor: pointer;
+}
+#navigation-buttons {
+    display: flex;
+    gap: 20px;
+    width: var(--page-margin-width);
+}
+#navigation-buttons button {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    border-radius: 20px;
+    background-color: var(--color-bright);
+    box-shadow: var(--shadow-float);
+    cursor: pointer;
+    font-weight: bold;
+}
+#navigation-buttons button.back {
+    flex: 1;
+    font-size: 22px;
+}
+#navigation-buttons button.claim {
+    flex: 2;
+    padding: 50px 0;
+    font-size: 40px;
+    color: var(--color-green);
+}
+
+#repair-msg-box {
+    width: calc(var(--page-margin-width) - 40px);
+    background-color: var(--color-red-transparent);
+    box-shadow: var(--shadow-float);
+    border: 2px solid var(--color-red);
+    border-radius: 10px;
+    padding: 20px;
+    display: flex;
+    justify-content: space-between;
+}
+#repair-msg-box .msg {
+    margin: 0;
+    font-size: 18px;
+    position: relative;
+    flex: 1;
+}
+#repair-msg-box .msg .date {
+    position: absolute;
+    bottom: -13px;
+    left: -8px;
+}
+#repair-msg-box .img {
+    position: relative;
+    border-radius: 10px;
+    padding-bottom: -10px;
+    width: 150px;
+    height: 100px;
+    overflow: hidden;
+    cursor: pointer;
+    padding: 0;
+}
+#repair-msg-box .img::after {
+    content: "+";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 2px 15px;
+    border-radius: 7px;
+    font-size: 20px;
+    border: 2px solid var(--color-accent);
+    color: var(--color-accent);
+    background-color: rgba(255, 255, 255, .8);
+}
+#repair-msg-box .img img {
+    width: 100%;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+    object-fit: cover;
+    opacity: .8;
+}
+    </style>
+</head>
+<body>
+    <sidebar-container>
+        <deselect></deselect>
+        <sidebar>
+            <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
+            <button class="setRole"><h2>Cleaner</h2></button>
+            <button class="setRole"><h2>Repairer</h2></button>
+            <button class="toggleDateCol"><h2>Toggle Date Column</h2></button>
+        </sidebar>
+    </sidebar-container>
+    <navbar>
+        <button>
+            <hamburger style="margin-right: 15px;"></hamburger> <span id="role-title"></span>
+        </button>
+        <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
+    </navbar>
+
+    <spacer style="height: 150px;"></spacer>
+
+    <div class="full-width" style="margin-bottom: calc(1.7rem + 10px);">
+        <table style="width: 100%;">
+            <tr>
+                <th>Serial #</th>
+                <td>KCK-1164</td>
+                <th>Avaiable</th>
+                <td>✅</td>
+            </tr>
+            <tr>
+                <th>Territory</th>
+                <td>RE5</td>
+                <th>Renting</th>
+                <td>❌</td>
+            </tr>
+            <tr>
+                <th>Req. Terr</th>
+                <td>–</td>
+                <th>Pickup</th>
+                <td>❌</td>
+            </tr>
+            <tr>
+                <th>Consigned</th>
+                <td>–</td>
+                <th>Active Status</th>
+                <td>Active</td>
+            </tr>
+        </table>
+        <div class="behind-btn">Edit in AppServer</div>
+    </div>
+    
+    <spacer style="height: 50px;"></spacer>
+
+    <div id="repair-msg-box">
+        <div class="msg">
+            <span>Bad Pot Cable</span>
+            <span class="date">🏴 Modified: 4/14/2025</span>
+        </div>
+        <div class="img">
+            <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
+        </div>
+    </div>
+    
+    <spacer style="height: 50px;"></spacer>
+
+    <div id="navigation-buttons">
+        <button class="back" onclick="window.history.back();">
+            <arrow-left></arrow-left>
+            Back to scanner
+        </button>
+        <button class="claim">Claim & Clean</button>
+    </div>
+</body>
+</html>
