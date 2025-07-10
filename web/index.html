@@ -36,7 +36,8 @@
 
 // set onscan handler
 HandleScans.onScan = (s) => {
-    location.href = 'machine-details.html?code=' + encodeURIComponent(s.stripExtraChars());
+    sessionStorage.setItem('current_serial_number', s.stripExtraChars());
+    location.href = 'machine-details.html';
 }
 
 

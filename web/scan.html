@@ -60,7 +60,8 @@ input {
     <script>
 
 function submitSerialNumber() {
-    location.href = 'machine-details.html?code=' + encodeURIComponent(document.querySelector('prompt input').value);
+    sessionStorage.setItem('current_serial_number', document.querySelector('prompt input').value);
+    location.href = 'machine-details.html';
 }
 
 const inputManualEntry = document.querySelector('input#manualEntry');

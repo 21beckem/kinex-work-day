@@ -85,6 +85,7 @@ div:has(> .behind-btn) {
 }
 #repair-msg-box .msg {
     margin: 0;
+    padding-bottom: 30px;
     font-size: 18px;
     position: relative;
     flex: 1;
@@ -134,30 +135,30 @@ div:has(> .behind-btn) {
     <spacer style="height: 120px;"></spacer>
 
     <div class="full-width" style="margin-bottom: calc(1.7rem + 10px);">
-        <table style="width: 100%;">
+        <table id="machine-table" style="width: 100%;" cellspacing="0">
             <tr>
                 <th>Serial #</th>
-                <td>KCK-1164</td>
+                <td>–</td>
                 <th>Avaiable</th>
-                <td>✅</td>
+                <td>–</td>
             </tr>
             <tr>
                 <th>Territory</th>
-                <td>RE5</td>
+                <td>–</td>
                 <th>Renting</th>
-                <td>❌</td>
+                <td>–</td>
             </tr>
             <tr>
                 <th>Req. Terr</th>
                 <td>–</td>
                 <th>Pickup</th>
-                <td>❌</td>
+                <td>–</td>
             </tr>
             <tr>
                 <th>Consigned</th>
                 <td>–</td>
                 <th>Active Status</th>
-                <td>Active</td>
+                <td>–</td>
             </tr>
         </table>
         <div class="behind-btn">Edit in AppServer</div>
@@ -165,13 +166,13 @@ div:has(> .behind-btn) {
     
     <spacer style="height: 50px;"></spacer>
 
-    <div id="repair-msg-box">
+    <div id="repair-msg-box" style="display: none;">
         <div class="msg">
-            <span>Bad Pot Cable</span>
-            <span class="date">🏴 Modified: 4/14/2025</span>
+            <span>–</span>
+            <span class="date">–</span>
         </div>
-        <div class="img">
-            <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
+        <div class="img" style="display: none;">
+            <img src="" alt="Kinex Logo">
         </div>
     </div>
     
@@ -187,5 +188,96 @@ div:has(> .behind-btn) {
     <script src="every-page.js"></script>
     <script src="fetcher.js"></script>
     <script src="AppServer.js"></script>
+    <script src="handle-scans.js"></script>
+    <script src="WorkDay.js"></script>
+
+    <script>
+// get constants
+const machineTable = document.getElementById('machine-table');
+
+// set scan handler
+HandleScans.onScan = (s) => {
+    sessionStorage.setItem('current_serial_number', s.stripExtraChars());
+    location.href = 'machine-details.html';
+};
+
+// set claim button text and function
+const claimButton = document.querySelector('#navigation-buttons .claim');
+claimButton.innerHTML = "Claim & "+Kinex_Role.slice(0, -2);
+claimButton.onclick = async () => {
+    if (Kinex_Role.toLowerCase() == 'cleaner') {
+        await WorkDay.addCleaner(SN, 0);
+        window.location.href = "clean.html?code=" + SN;
+    } else {
+        await WorkDay.addRepairer(SN, 0);
+        window.location.href = "repair.html?code=" + SN;
+    }
+}
+
+// get machine code
+const SN = sessionStorage.getItem('current_serial_number');
+if (!SN) {
+    window.history.back();
+}
+
+async function populateMachine() {
+    let searchResults = await AppServer.searchInventory(SN);
+
+    // check if machine doesn't exist or too many
+    if (searchResults.length != 1) {
+        console.error("Expected 1 result for serial number " + SN + ". Got " + searchResults.length);
+        window.history.back();
+        return;
+    }
+    window.machine = searchResults[0];
+
+    // fill in table
+    machineTable.innerHTML = `
+        <tr>
+            <th>Serial #</th>
+            <td>${machine.SerialNumber}</td>
+            <th>Avaiable</th>
+            <td>${machine.IsAvailable ? "✅" : "❌"}</td>
+        </tr>
+        <tr>
+            <th>Territory</th>
+            <td>${machine.TerritoryName}</td>
+            <th>Renting</th>
+            <td>${machine.IsRenting ? "✅" : "❌"}</td>
+        </tr>
+        <tr>
+            <th>Req. Terr</th>
+            <td>${machine.RequestedTerritoryName ? machine.RequestedTerritoryName : "–"}</td>
+            <th>Pickup</th>
+            <td>${machine.IsPickup ? "✅" : "❌"}</td>
+        </tr>
+        <tr>
+            <th>Consigned</th>
+            <td>${machine.ConsignedCustomerName ? machine.ConsignedCustomerName : "–"}</td>
+            <th>Active Status</th>
+            <td>${machine.StatusName}</td>
+        </tr>
+    `;
+
+    // get most recent activities
+    let activities = await machine.getAllActivities();
+
+    // fill in activity table
+
+    // find if any of the activities are a message for repair
+    let repairMessage = activities.find(x => x.ActivityTypeName == "Repair Status");
+    if (repairMessage) {
+        // show message
+        document.getElementById('repair-msg-box').style.display = 'flex';
+        document.querySelector('#repair-msg-box .msg span').innerHTML = repairMessage.Note;
+        document.querySelector('#repair-msg-box .msg .date').innerHTML = "🏴 Modified on " + new Date(repairMessage.ModifiedDate).toLocaleDateString() + ", by: " + repairMessage.cn;
+    } else {
+        // hide message
+        document.getElementById('repair-msg-box').style.display = 'none';
+    }
+
+}
+populateMachine();
+    </script>
 </body>
 </html>
