@@ -31,3 +31,39 @@ const createContent = () => {
     frame.style.cssText = `position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 9999;`;
     document.body.appendChild(frame);
 }
+
+
+// handle child fetch requests
+window.addEventListener('message', (e) => {
+    if (e.data.type === 'fetch-for-me') {
+        // detect if the body is FormData
+        if (e.data.bodyIsFormData) {
+            // convert form data to json
+            function jsonToFormData(json) {
+                const formData = new FormData();
+                for (const key in json) {
+                    if (json.hasOwnProperty(key)) {
+                        const value = json[key];
+
+                        if (typeof value === 'object' && !(value instanceof File) && !(value instanceof Blob)) {
+                            // Recursively append nested objects and arrays
+                            formData.append(key, JSON.stringify(value));
+                        } else {
+                            formData.append(key, value);
+                        }
+                    }
+                }
+                return formData;
+            }
+
+            e.data.init.body = jsonToFormData(e.data.init.body);
+        }
+
+        fetch(e.data.input, e.data.init)
+            .then(res => res.text())
+            .then(txt => {
+                // send response to sender
+                e.source.postMessage({ type: 'fetch-response', uid: e.data.uid, responseText: txt }, '*');
+            });
+    }
+});
