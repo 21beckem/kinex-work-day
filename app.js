@@ -30,6 +30,7 @@ const createContent = () => {
     frame.src = 'http://localhost:5500/web/index.html';
     frame.style.cssText = `position: absolute; top: 0; left: 0; width: 100%; height: 100%; border: none; z-index: 9999;`;
     document.body.appendChild(frame);
+    document.title = "Work Day";
 }
 
 

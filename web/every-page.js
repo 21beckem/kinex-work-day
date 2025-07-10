@@ -43,3 +43,28 @@ if (document.querySelector('sidebar-container')) {
         location.reload();
     }
 }
+
+// fill in bottom drawer
+if (document.querySelector('bottom-drawer-container')) {
+    document.querySelector('bottom-drawer-container').innerHTML = `
+        <deselect onclick="this.parentElement.classList.remove('active');"></deselect>
+        <bottom-drawer-mover>
+            <spacer style="height: 70vh;"></spacer>
+            <bottom-drawer>
+                <div class="title">Recent Activity</div>
+                <recent-activity>
+                    <activity></activity>
+                </recent-activity>
+            </bottom-drawer>
+        </bottom-drawer-mover>
+    `;
+    // set handler to hide bottom drawer on scroll if you're scrolling fast enough
+    const bottomDrawerMover = document.querySelector('bottom-drawer-mover');
+    let lastBottomDrawerScrollPos = 0;
+    bottomDrawerMover.addEventListener("scroll", (event) => {
+        if (bottomDrawerMover.scrollTop < 1 && Math.abs(bottomDrawerMover.scrollTop - lastBottomDrawerScrollPos) > 20) {
+            document.querySelector('bottom-drawer-container').classList.remove('active');
+        }
+        lastBottomDrawerScrollPos = bottomDrawerMover.scrollTop;
+    });
+}

@@ -85,15 +85,13 @@ div:has(> .behind-btn) {
 }
 #repair-msg-box .msg {
     margin: 0;
-    padding-bottom: 30px;
     font-size: 18px;
     position: relative;
     flex: 1;
-}
-#repair-msg-box .msg .date {
-    position: absolute;
-    bottom: -13px;
-    left: -8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    gap: 1rem;
 }
 #repair-msg-box .img {
     position: relative;
@@ -168,8 +166,8 @@ div:has(> .behind-btn) {
 
     <div id="repair-msg-box" style="display: none;">
         <div class="msg">
-            <span>–</span>
             <span class="date">–</span>
+            <span class="note">–</span>
         </div>
         <div class="img" style="display: none;">
             <img src="" alt="Kinex Logo">
@@ -185,6 +183,13 @@ div:has(> .behind-btn) {
         </button>
         <button class="claim">Claim & Clean</button>
     </div>
+
+
+    <recent-activity-button onclick="this.nextElementSibling.classList.add('active');">Recent Activity</recent-activity-button>
+
+    <bottom-drawer-container></bottom-drawer-container>
+
+
     <script src="every-page.js"></script>
     <script src="fetcher.js"></script>
     <script src="AppServer.js"></script>
@@ -263,13 +268,17 @@ async function populateMachine() {
     let activities = await machine.getAllActivities();
 
     // fill in activity table
+    let activityTable = document.querySelector('recent-activity');
+    activityTable.innerHTML = activities.map(x => {
+        return `<activity class="${x.IsComplete ? "" : "incomplete"}"><div>${x.AppServerTitle}</div><div>${x.Note}</div></activity>`
+    }).join('');
 
     // find if any of the activities are a message for repair
-    let repairMessage = activities.find(x => x.ActivityTypeName == "Repair Status");
+    let repairMessage = activities.find(x => x.ActivityTypeName == "Repair Status" && x.IsComplete == false);
     if (repairMessage) {
         // show message
         document.getElementById('repair-msg-box').style.display = 'flex';
-        document.querySelector('#repair-msg-box .msg span').innerHTML = repairMessage.Note;
+        document.querySelector('#repair-msg-box .msg .note').innerHTML = repairMessage.Note;
         document.querySelector('#repair-msg-box .msg .date').innerHTML = "🏴 Modified on " + new Date(repairMessage.ModifiedDate).toLocaleDateString() + ", by: " + repairMessage.cn;
     } else {
         // hide message
