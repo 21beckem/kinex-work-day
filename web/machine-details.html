@@ -48,6 +48,7 @@ div:has(> .behind-btn) {
     display: flex;
     gap: 20px;
     width: var(--page-margin-width);
+    max-width: var(--page-margin-max-width);
 }
 #navigation-buttons button {
     display: flex;
@@ -73,6 +74,7 @@ div:has(> .behind-btn) {
 
 #repair-msg-box {
     width: calc(var(--page-margin-width) - 40px);
+    max-width: calc(var(--page-margin-max-width) - 40px);
     background-color: var(--color-red-transparent);
     box-shadow: var(--shadow-float);
     border: 2px solid var(--color-red);
@@ -126,23 +128,10 @@ div:has(> .behind-btn) {
     </style>
 </head>
 <body>
-    <sidebar-container>
-        <deselect></deselect>
-        <sidebar>
-            <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
-            <button class="setRole"><h2>Cleaner</h2></button>
-            <button class="setRole"><h2>Repairer</h2></button>
-            <button class="toggleDateCol"><h2>Toggle Date Column</h2></button>
-        </sidebar>
-    </sidebar-container>
-    <navbar>
-        <button>
-            <hamburger style="margin-right: 15px;"></hamburger> <span id="role-title"></span>
-        </button>
-        <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
-    </navbar>
+    <sidebar-container></sidebar-container>
+    <navbar></navbar>
 
-    <spacer style="height: 150px;"></spacer>
+    <spacer style="height: 120px;"></spacer>
 
     <div class="full-width" style="margin-bottom: calc(1.7rem + 10px);">
         <table style="width: 100%;">
@@ -195,5 +184,6 @@ div:has(> .behind-btn) {
         </button>
         <button class="claim">Claim & Clean</button>
     </div>
+    <script src="every-page.js"></script>
 </body>
 </html>

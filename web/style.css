@@ -8,6 +8,7 @@
     --color-red: #CC0100;
     --color-red-transparent: color-mix(in srgb, var(--color-red) 20%, transparent);
     --page-margin-width: calc(100% - 5rem);
+    --page-margin-max-width: 800px;
     --shadow-float: 0 1px 10px -4px rgba(0,0,0,.4);
 }
 
@@ -29,6 +30,7 @@ body {
 }
 .full-width {
     width: var(--page-margin-width);
+    max-width: var(--page-margin-max-width);
 }
 button:not(.visible) {
     outline: none;
@@ -97,6 +99,10 @@ sidebar-container sidebar img {
     width: var(--page-margin-width);
     margin: 0 auto;
     margin-bottom: 40px;
+    cursor: pointer;
+}
+sidebar-container button {
+    margin-left: 10px;
 }
 
 navbar {
@@ -170,6 +176,7 @@ capsule.active {
 }
 table {
     width: var(--page-margin-width);
+    max-width: var(--page-margin-max-width);
     border-collapse: collapse;
     border: 1px solid var(--color-muted);
     table-layout: fixed;

@@ -8,21 +8,8 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <sidebar-container>
-        <deselect></deselect>
-        <sidebar>
-            <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
-            <button class="setRole"><h2>Cleaner</h2></button>
-            <button class="setRole"><h2>Repairer</h2></button>
-            <button class="toggleDateCol"><h2>Toggle Date Column</h2></button>
-        </sidebar>
-    </sidebar-container>
-    <navbar>
-        <button>
-            <hamburger style="margin-right: 15px;"></hamburger> <span id="role-title"></span>
-        </button>
-        <img src="https://mma.prnewswire.com/media/1730057/Kinex_Logo.jpg?p=twitter" alt="Kinex Logo">
-    </navbar>
+    <sidebar-container></sidebar-container>
+    <navbar></navbar>
 
     <spacer style="height: 150px;"></spacer>
 
@@ -43,35 +30,12 @@
 
     <script src="WorkDay.js"></script>
     <script src="handle-scans.js"></script>
+    <script src="every-page.js"></script>
     <script>
-
-// settings
-
-const showDateCol = localStorage.getItem('KinexWorkDay_showDateCol') == 'true';
-const Kinex_Role = localStorage.getItem('KinexWorkDay_role') || 'Cleaner';
-
-// end settings
 
 // set onscan handler
 HandleScans.onScan = (s) => {
     location.href = 'machine-details.html?code=' + encodeURIComponent(s.stripExtraChars());
-}
-
-// sidebar functions
-document.querySelector('deselect').onclick = () => {
-    document.querySelector('sidebar-container').classList.remove('active');
-}
-document.querySelector('button:has(hamburger)').onclick = () => {
-    document.querySelector('sidebar-container').classList.add('active');
-}
-document.querySelectorAll('sidebar button.setRole').forEach(x => x.onclick = () => {
-    document.querySelector('sidebar-container').classList.remove('active');
-    localStorage.setItem('KinexWorkDay_role', x.innerText);
-    location.reload();
-});
-document.querySelector('sidebar button.toggleDateCol').onclick = () => {
-    localStorage.setItem('KinexWorkDay_showDateCol', !showDateCol);
-    location.reload();
 }
 
 
@@ -94,8 +58,6 @@ function setSelectedCapsule(capsule) {
 
 // function to populate table and really the whole page
 async function populateTable(dateRange=1) {
-    // set navbar role title
-    document.getElementById('role-title').innerHTML = Kinex_Role;
 
     // set active capsule
     let checkFunction = null;
