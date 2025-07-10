@@ -15,7 +15,7 @@ class WorkDay {
         return res;
     }
     static async addCleaner(Sn, Status, date=null) {
-        let data = await WorkDay.getAllCleaned();
+        let data = await WorkDay.getAllCleaner();
         if (!data) data = [];
         if (!date) date = new Date();
         data.push([new Date().getTime(), Sn, Status]);

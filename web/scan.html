@@ -51,37 +51,66 @@ input {
     <prompt>
         <h3 style="margin: 10px;">Manual Entry</h3>
         <input type="text" id="manualEntry">
-        <button class="visible" onclick="location.href = 'machine-details.html?code=' + encodeURIComponent(document.querySelector('prompt input').value);">Submit</button>
+        <button class="visible" onclick="submitSerialNumber();">Submit</button>
     </prompt>
 
     <script src="https://cdn.jsdelivr.net/npm/@ericblade/quagga2/dist/quagga.min.js"></script>
+    <script src="handle-scans.js"></script>
     <script>
-const inputManualEntry = document.querySelector('input#manualEntry');
-const quaggaConf = {
-    inputStream: {
-        target: document.querySelector("#camera"),
-        type: "LiveStream",
-        constraints: {
-            width: { min: 640 },
-            height: { min: 480 },
-            facingMode: "environment",
-            aspectRatio: { min: 1, max: 2 }
-        }
-    },
-    decoder: {
-        readers: ['code_128_reader']
-    },
+
+function submitSerialNumber() {
+    location.href = 'machine-details.html?code=' + encodeURIComponent(document.querySelector('prompt input').value);
 }
 
-Quagga.init(quaggaConf, function (err) {
-    if (err) { return console.log(err); }
-    Quagga.start();
+const inputManualEntry = document.querySelector('input#manualEntry');
+inputManualEntry.addEventListener('keypress', function(event) {
+    if (event.key === 'Enter') {
+        document.querySelector('prompt button').click();
+    }
 });
 
-Quagga.onDetected(function (result) {
-    inputManualEntry.value = result.codeResult.code;
-    // location.href = 'machine-details.html?code=' + encodeURIComponent(result.codeResult.code);
-});
+function loadCameraScanner() {
+    const quaggaConf = {
+        inputStream: {
+            target: document.querySelector("#camera"),
+            type: "LiveStream",
+            constraints: {
+                width: { min: 640 },
+                height: { min: 480 },
+                facingMode: "environment",
+                aspectRatio: { min: 1, max: 2 }
+            }
+        },
+        decoder: {
+            readers: ['code_128_reader']
+        },
+    }
+
+    Quagga.init(quaggaConf, function (err) {
+        if (err) { return console.log(err); }
+        Quagga.start();
+    });
+
+    Quagga.onDetected(function (result) {
+        inputManualEntry.value = result.codeResult.code;
+        // submitSerialNumber();
+    });
+}
+
+// only load the camera scanner on mobile
+if (window.matchMedia("(max-width: 767px)").matches) {
+    loadCameraScanner();
+} else {
+    document.querySelector('#camera').innerHTML = `
+        <h3 style="margin: 10px; text-align: center; color: var(--color-muted-darker); line-height: 3rem;">Scan a barcode using a scanner (don't click on manual entry),<br>or type it in above</h3>
+    `;
+}
+
+// setup the onScan handler
+HandleScans.onScan = (s) => {
+    inputManualEntry.value = s.stripExtraChars();
+    submitSerialNumber();
+};
 </script>
 </body>
 </html>

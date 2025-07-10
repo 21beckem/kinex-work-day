@@ -42,6 +42,7 @@
     <bottom-button onclick="location.href = 'scan.html'">+</bottom-button>
 
     <script src="WorkDay.js"></script>
+    <script src="handle-scans.js"></script>
     <script>
 
 // settings
@@ -51,6 +52,10 @@ const Kinex_Role = localStorage.getItem('KinexWorkDay_role') || 'Cleaner';
 
 // end settings
 
+// set onscan handler
+HandleScans.onScan = (s) => {
+    location.href = 'machine-details.html?code=' + encodeURIComponent(s.stripExtraChars());
+}
 
 // sidebar functions
 document.querySelector('deselect').onclick = () => {
