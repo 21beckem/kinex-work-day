@@ -44,13 +44,13 @@ div:has(> .behind-btn) {
     color: var(--color-accent);
     cursor: pointer;
 }
-#navigation-buttons {
+.bottom-square-btns {
     display: flex;
     gap: 20px;
     width: var(--page-margin-width);
     max-width: var(--page-margin-max-width);
 }
-#navigation-buttons button {
+.bottom-square-btns button {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -61,15 +61,21 @@ div:has(> .behind-btn) {
     cursor: pointer;
     font-weight: bold;
 }
-#navigation-buttons button.back {
-    flex: 1;
+.bottom-square-btns button.back {
+    flex: 2;
     font-size: 22px;
 }
-#navigation-buttons button.claim {
-    flex: 2;
-    padding: 50px 0;
+.bottom-square-btns button.claim {
+    flex: 4;
+    padding: 50px 10px;
     font-size: 40px;
     color: var(--color-green);
+}
+.bottom-square-btns button.repair {
+    flex: 3;
+    font-size: 40px;
+    margin-left: 50px;
+    color: var(--color-red);
 }
 
 #repair-msg-box {
@@ -176,12 +182,16 @@ div:has(> .behind-btn) {
     
     <spacer style="height: 50px;"></spacer>
 
-    <div id="navigation-buttons">
+    <div id="navigation-buttons" class="bottom-square-btns">
         <button class="back" onclick="window.history.back();">
             <arrow-left></arrow-left>
             Back to scanner
         </button>
         <button class="claim">Claim & Clean</button>
+    </div>
+    <div id="set-status-buttons" class="bottom-square-btns" style="display: none;">
+        <button class="claim" onclick="testedAndClean();">Tested & Clean</button>
+        <button class="repair" onclick="sendToRepair();">Send to Repair</button>
     </div>
 
 
@@ -190,40 +200,95 @@ div:has(> .behind-btn) {
     <bottom-drawer-container></bottom-drawer-container>
 
 
+    <script src="WorkDay.js"></script>
     <script src="every-page.js"></script>
+    <script src="jsalert.js"></script>
     <script src="fetcher.js"></script>
     <script src="AppServer.js"></script>
     <script src="handle-scans.js"></script>
-    <script src="WorkDay.js"></script>
 
     <script>
 // get constants
 const machineTable = document.getElementById('machine-table');
-
-// set scan handler
-HandleScans.onScan = (s) => {
-    sessionStorage.setItem('current_serial_number', s.stripExtraChars());
-    location.href = 'machine-details.html';
-};
-
-// set claim button text and function
-const claimButton = document.querySelector('#navigation-buttons .claim');
-claimButton.innerHTML = "Claim & "+Kinex_Role.slice(0, -2);
-claimButton.onclick = async () => {
-    if (Kinex_Role.toLowerCase() == 'cleaner') {
-        await WorkDay.addCleaner(SN, 0);
-        window.location.href = "clean.html?code=" + SN;
-    } else {
-        await WorkDay.addRepairer(SN, 0);
-        window.location.href = "repair.html?code=" + SN;
-    }
-}
 
 // get machine code
 const SN = sessionStorage.getItem('current_serial_number');
 if (!SN) {
     window.history.back();
 }
+
+// functions for status updates
+function testedAndClean() {
+    let a = new JSAlert('Clicking “Send” will transfer it to the selected territory', 'Where should this machine be transferred?');
+    a.addButton('Send','send').then(async (e) => {
+        // add activity that the machine passed all testing
+
+
+        // transfer to selected territory
+
+
+        // confirm transfer
+
+
+        // set the status in MyWorkDay
+        await (await MyWorkDay.getClaimed()).find(x => x.SerialNumber == SN).updateStatus(1);
+        window.location.href = 'index.html';
+    });
+    a.show();
+}
+function sendToRepair() {
+    let a = new JSAlert('Clicking “Send” will transfer it to the repair territory.', 'What\'s wrong with the machine?');
+    a.addButton('Send','send').then(async (e) => {
+        // add repair status activity
+        // how to get the wrong with message -> a.textFields[0].elem.value if adding an offical text field
+        // or -> a.elems.text.firstElementChild.value if adding it as HTML to the text parameter
+
+        // transfer to repair territory
+
+
+        // confirm transfer
+
+
+        // set the status in MyWorkDay
+        await (await MyWorkDay.getClaimed()).find(x => x.SerialNumber == SN).updateStatus(-1);
+        window.location.href = 'index.html';
+    });
+    a.show();
+}
+
+async function showCorrectPage() {
+    // if this SN is in a claimed machine
+    if ((await MyWorkDay.getClaimed()).some(x => x.SerialNumber == SN)) {
+        // if I'm a cleaner, show the statuses buttons
+        if (Kinex_Role.toLowerCase() == 'cleaner') {
+            document.getElementById('navigation-buttons').style.display = 'none';
+            document.getElementById('set-status-buttons').style.display = 'flex';
+        } else {
+            // otherwise, go to the repair order page
+            window.location.href = "repair-order.html";
+        }
+    } else {
+        // if not claimed
+        // register the scanner
+        HandleScans.onScan = (s) => {
+            sessionStorage.setItem('current_serial_number', s.stripExtraChars());
+            location.href = 'machine-details.html';
+        };
+        // set claim button text and function
+        const claimButton = document.querySelector('#navigation-buttons .claim');
+        claimButton.innerHTML = "Claim & "+Kinex_Role.slice(0, -2);
+        claimButton.onclick = async () => {
+            await MyWorkDay.addClaimed(SN, 0);
+            if (Kinex_Role.toLowerCase() == 'cleaner') {
+                window.location.reload();
+            } else {
+                window.location.href = "repair-order.html";
+            }
+        }
+    }
+}
+showCorrectPage();
+
 
 async function populateMachine() {
     let searchResults = await AppServer.searchInventory(SN);

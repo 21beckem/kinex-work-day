@@ -1,6 +1,7 @@
 // settings
 const showDateCol = localStorage.getItem('KinexWorkDay_showDateCol') == 'true';
 const Kinex_Role = localStorage.getItem('KinexWorkDay_role') || 'Cleaner';
+const MyWorkDay = new WorkDay(Kinex_Role);
 
 // fill in navbar
 if (document.querySelector('navbar')) {

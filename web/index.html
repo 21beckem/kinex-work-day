@@ -32,6 +32,7 @@
     <script src="handle-scans.js"></script>
     <script src="fetcher.js"></script>
     <script src="every-page.js"></script>
+    <script src="jsalert.js"></script>
     <script>
 
 // set onscan handler
@@ -58,6 +59,23 @@ function setSelectedCapsule(capsule) {
     document.querySelector(`capsule[${capsule}]`).classList.add('active');
 }
 
+// handleRowClick
+function handleRowClick(claimed) {
+    let a = new JSAlert('What would you like to do?', claimed.SerialNumber);
+    a.addButton('Remove','delete', null, 'color: #6f0000;').then((e) => {
+        JSAlert.confirm('Are you sure?', 'This action cannot be undone.').then(async (e) => {
+            if (!e) return;
+            await claimed.delete();
+            window.location.reload();
+        });
+    });
+    a.addButton('View','details').then((e) => {
+        sessionStorage.setItem('current_serial_number', claimed.SerialNumber);
+        location.href = 'machine-details.html';
+    });
+    a.show();
+}
+
 // function to populate table and really the whole page
 async function populateTable(dateRange=1) {
 
@@ -81,19 +99,21 @@ async function populateTable(dateRange=1) {
     }
 
     // get data
-    window.listOfMachines = await WorkDay['getAll'+Kinex_Role]();
+    window.listOfMachines = await MyWorkDay.getClaimed();
     // filter and sort it
-    window.listOfMachines = window.listOfMachines.filter(row => checkFunction(new Date(row[0]))).sort((a, b) => a[0] - b[0]);
+    window.listOfMachines = window.listOfMachines.filter(claimed => checkFunction(claimed.Date)).sort((a, b) => a.Date - b.Date);
     
     // clear table
     document.querySelector('table .tableBody').innerHTML = '';
 
     // populate table
-    window.listOfMachines.map((row, i) => {
+    window.listOfMachines.map((claimed, i) => {
         let tr = document.createElement('tr');
-        tr.innerHTML = `<td>${row[1]}</td><td>${ WorkDay.statusToIcon(row[2]) }</td>`;
+        tr.onclick = handleRowClick.bind(null, claimed);
+        tr.style.cursor = 'pointer';
+        tr.innerHTML = `<td>${claimed.SerialNumber}</td><td>${ claimed.StatusIcon }</td>`;
         if (showDateCol) {
-            tr.innerHTML = `<td>${ new Date(row[0]).toLocaleString() }</td>` + tr.innerHTML;
+            tr.innerHTML = `<td>${ claimed.Date.toLocaleString() }</td>` + tr.innerHTML;
         }
         document.querySelector('table .tableBody').appendChild(tr);
     });

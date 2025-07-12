@@ -1,26 +1,58 @@
 class WorkDay {
-    static async rawRequest() {
+    constructor(role) {
+        this.role = role;
+    }
+    async clear() {
         await new Promise(r => setTimeout(r, 100)); // simulate waiting for request
-        
-        let out = localStorage.getItem('KinexWorkDay_'+arguments[0]); // getting value
-        if (arguments.length > 1) {
-            out = localStorage.setItem('KinexWorkDay_'+arguments[0], JSON.stringify(arguments[1])); // setting value
-        }
-        try { out = JSON.parse(out); } catch (e) {}
-        return out;
+        return localStorage.removeItem('KinexWorkDay_'+this.role);
     }
-    static async getAllCleaner() {
-        let res = await WorkDay.rawRequest('all-cleaned');
-        if (typeof res !== 'object' || !res) res = [];
-        return res;
+    async getClaimed(convertToMachines=true) {
+        await new Promise(r => setTimeout(r, 100)); // simulate waiting for request
+
+        let res = localStorage.getItem('KinexWorkDay_'+this.role); // get value
+        try { res = JSON.parse(res); } catch (e) {} // attempt to parse
+        if (typeof res !== 'object' || !res) res = []; // ensure that it's an array
+
+        if (!convertToMachines) return res; // return 2D array if requested
+
+        return ClaimedMachine.convertFrom2dArray(res, this); // convert to machines
     }
-    static async addCleaner(Sn, Status, date=null) {
-        let data = await WorkDay.getAllCleaner();
-        if (!data) data = [];
-        if (!date) date = new Date();
-        data.push([new Date().getTime(), Sn, Status]);
-        return await WorkDay.rawRequest('all-cleaned', data);
+    async addClaimed(Sn, Status, date=null) {
+        await new Promise(r => setTimeout(r, 100)); // simulate waiting for request
+
+        let data = await this.getClaimed(false); // get current data as 2D array
+        if (!date) date = new Date(); // get current date
+        data.push([new Date().getTime(), Sn, Status]); // add new row
+        return localStorage.setItem('KinexWorkDay_'+this.role, JSON.stringify(data));
     }
-    static statusToIcon = (x) => { return { "-1": "🔩", "0": "⌛", "1": "✅" }[String(x)]; }
-    static iconToStatus = (x) => { return { "🔩":  -1 , "⌛":  0 , "✅":  1  }[x]; }
+}
+
+class ClaimedMachine {
+    constructor(row, i, myWorkDayObject) {
+        this.Date = new Date(row[0]);
+        this.SerialNumber = row[1];
+        this.Status = row[2];
+        this.StatusIcon = { "-1": "🔩", "0": "⌛", "1": "✅" }[String( this.Status )];
+        this.myWorkDayObject = myWorkDayObject;
+        this.index = i;
+    }
+    static convertFrom2dArray(data, myWorkDayObject) {
+        return data.map((x, i) => new ClaimedMachine(x, i, myWorkDayObject));
+    }
+    toArray() {
+        return [ this.Date.getTime(), this.SerialNumber, this.Status ];
+    }
+    async updateStatus(Status) {
+        this.Status = Status;
+        this.StatusIcon = { "-1": "🔩", "0": "⌛", "1": "✅" }[String( this.Status )];
+        let arr2D = (await this.myWorkDayObject.getClaimed(false));
+        arr2D[this.index] = this.toArray();
+        localStorage.setItem('KinexWorkDay_'+this.myWorkDayObject.role, JSON.stringify(arr2D));
+    }
+    async delete() {
+        let res = await this.myWorkDayObject.getClaimed();
+        res.splice(this.index, 1);
+        let arr2D = res.map(x => x.toArray());
+        return localStorage.setItem('KinexWorkDay_'+this.myWorkDayObject.role, JSON.stringify(arr2D));
+    }
 }
